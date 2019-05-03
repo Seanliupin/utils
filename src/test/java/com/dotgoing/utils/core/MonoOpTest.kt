@@ -117,4 +117,96 @@ class MonoOpTest : BastTest() {
 
 
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun needOperatorTest() {
+        val none: Mono<Option<String>> = Mono.just(None())
+        val noneInt: Mono<Option<Int>> = Mono.just(None())
+        val some: Mono<Option<String>> = Mono.just(Some("hello"))
+        val someInt: Mono<Option<Int>> = Mono.just(Some(9))
+
+
+        someInt.valueFilter("should bigger than 3") {
+            it > 3
+        }.block()!!.shouldEqual(Some(9))
+
+        someInt.valueFilterNot("should bigger than 3") {
+            it > 3
+        }.block()!!.shouldEqual(None(Exception("should bigger than 3")))
+
+        someInt.valueFilterNot("should bigger than 3") {
+            it > 13
+        }.block()!!.shouldEqual(Some(9))
+
+
+
+        someInt.valueFilter("") {
+            it > 3
+        }.someMap {
+            Some(it.toString())
+        }.noneMap {
+            None(Exception("nothing"))
+        }.block()!!.shouldEqual(Some("9"))
+
+        someInt.valueFilter("") {
+            it > 10
+        }.someMap {
+            Some(it.toString())
+        }.noneMap {
+            None(Exception("nothing"))
+        }.block()!!.shouldEqual(None(Exception("nothing")))
+
+        someInt.valueFilter("") {
+            it > 10
+        }.noneMap {
+            None(Exception("redirect:login"))
+        }.someMap {
+            Some(it.toString())
+        }.block()!!.shouldEqual(None(Exception("redirect:login")))
+
+        someInt.valueFilter("") {
+            it > 3
+        }.noneMap {
+            None(Exception("redirect:login"))
+        }.someMap {
+            Some(it.toString())
+        }.block()!!.shouldEqual(Some("9"))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun someValueOperatorTest() {
+        val some: Mono<Option<String>> = Mono.just(Some("hello"))
+
+        some.someMap { it ->
+            op("$it-world", "")
+        }.block()!!.shouldEqual(Some("hello-world"))
+
+        some.someFlatMap { it ->
+            monoOp("$it-world")
+        }.block()!!.shouldEqual(Some("hello-world"))
+
+        some.orValue {
+            "its me"
+        }.block()!!.shouldEqual(Some("hello"))
+
+        //这里测试的是延迟计算
+        some.orValue {
+            bug("this should never be happened !!!")
+            "it is dangerous"
+        }.block()!!.shouldEqual(Some("hello"))
+
+        some.mapValue {
+            "$it world"
+        }.block()!!.shouldEqual(Some("hello world"))
+
+        some.valueFilter("leaved msg") {
+            it.contains("you")
+        }.block()!!.shouldEqual(None(Exception("leaved msg")))
+
+        some.valueFilter("leaved msg") {
+            it.contains("ll")
+        }.block()!!.shouldEqual(Some("hello"))
+    }
 }
