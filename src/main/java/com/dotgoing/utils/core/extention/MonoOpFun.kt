@@ -306,3 +306,13 @@ fun <R> Mono<Option<R>>.extract(): Mono<R> {
         }
     }
 }
+
+fun <R> Mono<Option<R>>.extract(exception: Exception): Mono<R> {
+    return map {
+        if (it.hasValue()) {
+            it.value()
+        } else {
+            throw exception
+        }
+    }
+}

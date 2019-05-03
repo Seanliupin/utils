@@ -224,4 +224,10 @@ class MonoOpTest : BastTest() {
         val none: Mono<Option<String>> = Mono.just(None())
         none.extract().block()
     }
+
+    @Test(expected = TestException::class)
+    fun extract_none_exception_test() {
+        val none: Mono<Option<String>> = Mono.just(None())
+        none.extract(TestException()).block()
+    }
 }
