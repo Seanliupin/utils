@@ -34,7 +34,7 @@ class MonoOpTest : BastTest() {
         }.block()!!.shouldEqual(None(Exception("bug")))
 
         none.orMono {
-            MonoObj.monoOp("real-value")
+            monoOp("real-value")
         }.block()!!.shouldEqual(Some("real-value"))
 
         none.orMono {
