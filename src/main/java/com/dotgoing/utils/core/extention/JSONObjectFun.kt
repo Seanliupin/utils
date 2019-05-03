@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core.`fun`
+package com.dotgoing.utils.core.extention
 
 import com.alibaba.fastjson.JSONObject
 import com.dotgoing.utils.core.option.None

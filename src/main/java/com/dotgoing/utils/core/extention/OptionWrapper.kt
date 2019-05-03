@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core.`fun`
+package com.dotgoing.utils.core.extention
 
 import com.dotgoing.utils.core.option.Option
 import java.util.function.Function

@@ -1,6 +1,6 @@
 package com.dotgoing.utils.core
 
-import com.dotgoing.utils.core.`fun`.*
+import com.dotgoing.utils.core.extention.*
 import com.dotgoing.utils.core.option.None
 import com.dotgoing.utils.core.option.Option
 import com.dotgoing.utils.core.option.Some
