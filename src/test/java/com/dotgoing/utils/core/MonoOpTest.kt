@@ -3,9 +3,11 @@ package com.dotgoing.utils.core
 import com.dotgoing.utils.core.extention.*
 import com.dotgoing.utils.core.option.None
 import com.dotgoing.utils.core.option.Option
+import com.dotgoing.utils.core.option.OptionExtractionException
 import com.dotgoing.utils.core.option.Some
 import org.junit.Test
 import reactor.core.publisher.Mono
+import kotlin.test.assertEquals
 
 class MonoOpTest : BastTest() {
 
@@ -208,5 +210,18 @@ class MonoOpTest : BastTest() {
         some.valueFilter("leaved msg") {
             it.contains("ll")
         }.block()!!.shouldEqual(Some("hello"))
+    }
+
+    @Test
+    fun extract_some_test() {
+        val some: Mono<Option<String>> = Mono.just(Some("hello"))
+        val str = some.extract().block()
+        assertEquals("hello", str, "should extract obj")
+    }
+
+    @Test(expected = OptionExtractionException::class)
+    fun extract_none_test() {
+        val none: Mono<Option<String>> = Mono.just(None())
+        none.extract().block()
     }
 }
