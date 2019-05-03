@@ -13,7 +13,7 @@ class Some<out T>(private val t: T) : Option<T>() {
         throw Exception("this data is ok: ${this}")
     }
 
-    override fun error(): OptionException {
+    override fun error(): Exception {
         throw OptionStateException("Some obj has no error : ${this}")
     }
 

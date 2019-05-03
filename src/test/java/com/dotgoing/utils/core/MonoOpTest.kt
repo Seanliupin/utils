@@ -3,7 +3,6 @@ package com.dotgoing.utils.core
 import com.dotgoing.utils.core.extention.*
 import com.dotgoing.utils.core.option.None
 import com.dotgoing.utils.core.option.Option
-import com.dotgoing.utils.core.option.OptionExtractionException
 import com.dotgoing.utils.core.option.Some
 import org.junit.Test
 import reactor.core.publisher.Mono
@@ -219,9 +218,13 @@ class MonoOpTest : BastTest() {
         assertEquals("hello", str, "should extract obj")
     }
 
-    @Test(expected = OptionExtractionException::class)
+    @Test(expected = TestException::class)
     fun extract_none_test() {
-        val none: Mono<Option<String>> = Mono.just(None())
+        val some: Mono<Option<String>> = Mono.just(Some("hello"))
+        val none = some.someMap {
+            None<String>(TestException())
+        }
+
         none.extract().block()
     }
 

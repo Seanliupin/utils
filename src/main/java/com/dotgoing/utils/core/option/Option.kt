@@ -9,7 +9,7 @@ abstract class Option<out T> {
 
     abstract fun errorCode(): Int
 
-    abstract fun error(): OptionException
+    abstract fun error(): Exception
 
     abstract fun value(): T
 

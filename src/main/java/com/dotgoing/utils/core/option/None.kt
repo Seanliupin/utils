@@ -17,11 +17,8 @@ class None<out T>(val exception: Exception = OptionException()) : Option<T>() {
         return default.code
     }
 
-    override fun error(): OptionException {
-        if (exception is OptionException) {
-            return exception
-        }
-        return OptionException(exception.message)
+    override fun error(): Exception {
+        return exception
 
     }
 

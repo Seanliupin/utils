@@ -302,7 +302,7 @@ fun <R> Mono<Option<R>>.extract(): Mono<R> {
         if (it.hasValue()) {
             it.value()
         } else {
-            throw OptionExtractionException("extract nothing")
+            throw it.error()
         }
     }
 }
