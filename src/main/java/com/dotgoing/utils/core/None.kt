@@ -1,6 +1,6 @@
 package com.dotgoing.utils.core
 
-class None<out T>(val exception: OptionException = OptionException()) : Option<T>() {
+class None<out T>(val exception: Exception = OptionException()) : Option<T>() {
     override fun hasValue(): Boolean {
         return false
     }
@@ -10,11 +10,19 @@ class None<out T>(val exception: OptionException = OptionException()) : Option<T
     }
 
     override fun errorCode(): Int {
-        return exception.code
+        if (exception is OptionException) {
+            return exception.code
+        }
+        val default = OptionException()
+        return default.code
     }
 
     override fun error(): OptionException {
-        return exception
+        if (exception is OptionException) {
+            return exception
+        }
+        return OptionException(exception.message)
+
     }
 
     override fun toString(): String {
