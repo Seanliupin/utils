@@ -1,8 +1,8 @@
-package com.dotgoing.utils.core
+package com.dotgoing.utils.`fun`
 
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
-import com.dotgoing.utils.`fun`.requireKey
+import com.dotgoing.utils.core.*
 import reactor.core.publisher.Mono
 
 
@@ -67,7 +67,8 @@ fun <T> Mono<Option<T>>.valueFilter(msg: String? = null, op: (T) -> Boolean): Mo
             if (op(it)) {
                 Some(it)
             } else {
-                None<T>(Exception(msg ?: "when process mono option, some condition not satisfied"))
+                None<T>(Exception(msg
+                        ?: "when process mono option, some condition not satisfied"))
             }
         } catch (e: Exception) {
             None<T>(e)

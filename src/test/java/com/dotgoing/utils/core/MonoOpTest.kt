@@ -1,5 +1,6 @@
 package com.dotgoing.utils.core
 
+import com.dotgoing.utils.`fun`.*
 import org.junit.Test
 import reactor.core.publisher.Mono
 
