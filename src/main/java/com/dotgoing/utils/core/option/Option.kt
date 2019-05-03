@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core
+package com.dotgoing.utils.core.option
 
 abstract class Option<out T> {
     fun hasNoValue(): Boolean {

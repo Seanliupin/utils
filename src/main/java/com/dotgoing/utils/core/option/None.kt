@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core
+package com.dotgoing.utils.core.option
 
 class None<out T>(val exception: Exception = OptionException()) : Option<T>() {
     override fun hasValue(): Boolean {

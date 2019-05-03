@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core;
+package com.dotgoing.utils.core.option;
 
 public class OptionStateException extends RuntimeException {
     public OptionStateException() {

@@ -1,6 +1,9 @@
 package com.dotgoing.utils.core
 
-import com.dotgoing.utils.`fun`.*
+import com.dotgoing.utils.core.`fun`.*
+import com.dotgoing.utils.core.option.None
+import com.dotgoing.utils.core.option.Option
+import com.dotgoing.utils.core.option.Some
 import org.junit.Test
 import reactor.core.publisher.Mono
 

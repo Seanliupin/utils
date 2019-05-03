@@ -1,7 +1,7 @@
 package com.dotgoing.utils.core
 
-import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
+import com.dotgoing.utils.core.option.Option
 
 abstract class BastTest() {
 

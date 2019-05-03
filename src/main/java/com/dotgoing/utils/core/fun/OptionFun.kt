@@ -1,8 +1,8 @@
-package com.dotgoing.utils.`fun`
+package com.dotgoing.utils.core.`fun`
 
-import com.dotgoing.utils.core.None
-import com.dotgoing.utils.core.Option
-import com.dotgoing.utils.core.Some
+import com.dotgoing.utils.core.option.None
+import com.dotgoing.utils.core.option.Option
+import com.dotgoing.utils.core.option.Some
 
 
 fun <T> Option<T>.noneMap(transform: (String) -> T): Option<T> {

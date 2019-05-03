@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core
+package com.dotgoing.utils.core.option
 
 class Some<out T>(private val t: T) : Option<T>() {
     override fun hasValue(): Boolean {

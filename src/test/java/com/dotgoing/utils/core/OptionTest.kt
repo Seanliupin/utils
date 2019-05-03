@@ -1,5 +1,9 @@
 package com.dotgoing.utils.core
 
+import com.dotgoing.utils.core.option.None
+import com.dotgoing.utils.core.option.Option
+import com.dotgoing.utils.core.option.OptionStateException
+import com.dotgoing.utils.core.option.Some
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

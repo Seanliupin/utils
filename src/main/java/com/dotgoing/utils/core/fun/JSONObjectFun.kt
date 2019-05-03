@@ -1,8 +1,8 @@
-package com.dotgoing.utils.`fun`
+package com.dotgoing.utils.core.`fun`
 
 import com.alibaba.fastjson.JSONObject
-import com.dotgoing.utils.core.None
-import com.dotgoing.utils.core.Some
+import com.dotgoing.utils.core.option.None
+import com.dotgoing.utils.core.option.Some
 
 /**
  * 如果没有所需要的key，则抛出异常
