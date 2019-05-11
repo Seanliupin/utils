@@ -1,29 +1,14 @@
-package com.dotgoing.utils.core.extention
+package com.dotgoing.utils.core.extention.mono
 
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
+import com.dotgoing.utils.core.extention.option.noneFlatMap
+import com.dotgoing.utils.core.extention.requireKey
 import com.dotgoing.utils.core.json.JSONData
 import com.dotgoing.utils.core.option.None
 import com.dotgoing.utils.core.option.Option
-import com.dotgoing.utils.core.option.OptionExtractionException
 import com.dotgoing.utils.core.option.Some
 import reactor.core.publisher.Mono
-
-fun <S> monoOp(obj: S?, msg: String? = null): Mono<Option<S>> {
-    return Mono.just(op(obj, msg))
-}
-
-fun <S> monoOp(op: Option<S>): Mono<Option<S>> {
-    return Mono.just(op)
-}
-
-fun <S> op(obj: S?, msg: String? = null): Option<S> {
-    return if (obj == null) {
-        None(Exception(msg ?: "none value construct by op function in MonoOpHelper"))
-    } else {
-        Some(obj)
-    }
-}
 
 fun <T> Mono<Option<T>>.orMono(other: (Option<T>) -> Mono<Option<T>>): Mono<Option<T>> {
     return flatMap {

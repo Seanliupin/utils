@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core.extention
+package com.dotgoing.utils.core.extention.option
 
 import com.dotgoing.utils.core.option.None
 import com.dotgoing.utils.core.option.Option
