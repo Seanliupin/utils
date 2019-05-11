@@ -81,7 +81,7 @@ abstract class Option<out T> {
             try {
                 transform(value())
             } catch (e: Exception) {
-                None<R>(OptionException(e))
+                None<R>(e)
             }
         } else {
             None(error())
@@ -104,6 +104,9 @@ abstract class Option<out T> {
             }
 
             //此时二者都没有值。则比较错误的内容
+            if (v.error().javaClass.name != error().javaClass.name) {
+                return false
+            }
             return v.toString() == toString()
         } catch (e: Exception) {
             false

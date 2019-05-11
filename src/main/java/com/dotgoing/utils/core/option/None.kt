@@ -1,6 +1,9 @@
 package com.dotgoing.utils.core.option
 
 class None<out T>(val exception: Exception = OptionException()) : Option<T>() {
+
+    constructor(string: String) : this(OptionException(string))
+
     override fun hasValue(): Boolean {
         return false
     }

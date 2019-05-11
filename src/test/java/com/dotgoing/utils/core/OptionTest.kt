@@ -1,11 +1,9 @@
 package com.dotgoing.utils.core
 
-import com.dotgoing.utils.core.option.None
-import com.dotgoing.utils.core.option.Option
-import com.dotgoing.utils.core.option.OptionStateException
-import com.dotgoing.utils.core.option.Some
+import com.dotgoing.utils.core.option.*
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class OptionTest {
@@ -124,5 +122,18 @@ class OptionTest {
         }
         assertTrue(errorAgain.hasNoValue(), "error in flatMap function should result in None")
         assertEquals(errorAgain.error().message, "oh no", "None should never flatMap, thus it will never capture the flatMap error")
+    }
+
+    @Test
+    fun none_str_constructor() {
+        val a = None<String>("hello")
+        val b = None<String>(OptionException("hello"))
+
+        assertEquals(b, a, "both should be equal")
+
+        val c = None<String>("hello")
+        val d = None<String>(Exception("hello"))
+
+        assertNotEquals(c, d, "both should be equal")
     }
 }
