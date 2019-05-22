@@ -148,21 +148,23 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
-    public Option<T> block() {
-        return data.block();
-    }
-
-    public Option<T> value() {
-        return data.block();
-    }
-
     public Mono<Option<T>> getData() {
         return data;
     }
 
+    public T get() throws Exception {
+        Option<T> option = data.block();
+        assert option != null;
+        if (option.hasValue()) {
+            return option.value();
+        }
+        throw option.error();
+    }
+
     public T getOrElse(T back) {
         Option<T> option = data.block();
-        if (option != null && option.hasValue()) {
+        assert option != null;
+        if (option.hasValue()) {
             return option.value();
         }
         return back;
