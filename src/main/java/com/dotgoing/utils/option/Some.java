@@ -10,6 +10,11 @@ public final class Some<T> extends Option<T> {
     }
 
     @Override
+    public Exception error() {
+        throw new RuntimeException("This is Some Object");
+    }
+
+    @Override
     public <R> Option<R> map(Function<? super T, ? extends R> transformer) {
         try {
             return new Some<>(transformer.apply(value()));

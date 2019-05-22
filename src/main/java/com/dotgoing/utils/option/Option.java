@@ -10,6 +10,12 @@ public abstract class Option<T> {
 
     public abstract T value();
 
+    public abstract Exception error();
+
     public abstract boolean hasValue();
+
+    public final boolean hasNoValue() {
+        return !hasValue();
+    }
 }
 

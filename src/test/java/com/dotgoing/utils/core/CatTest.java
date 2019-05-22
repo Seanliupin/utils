@@ -37,7 +37,7 @@ public class CatTest {
         len = catLen.getOrElse(5);
         Assert.assertEquals("should equal", 5, len);
         None<Integer> errorNone = (None<Integer>) catLen.value();
-        Assert.assertEquals("should equal", "fake error", errorNone.getErr().getMessage());
+        Assert.assertEquals("should equal", "fake error", errorNone.error().getMessage());
     }
 
     private void fakeError() {

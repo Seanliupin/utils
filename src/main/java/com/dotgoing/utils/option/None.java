@@ -15,7 +15,8 @@ public final class None<T> extends Option<T> {
         this.err = err;
     }
 
-    public Exception getErr() {
+    @Override
+    public Exception error() {
         return err;
     }
 

@@ -6,6 +6,7 @@ import com.dotgoing.utils.option.Option;
 import com.dotgoing.utils.option.Some;
 import reactor.core.publisher.Mono;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Cat<T> {
@@ -53,11 +54,70 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
+    public Cat<T> actSome(Consumer<T> consumer) {
+        data.map((op) -> {
+            if (op.hasValue()) {
+                try {
+                    consumer.accept(op.value());
+                } catch (Exception e) {
+                }
+            }
+            return op;
+        });
+
+        return new Cat<>(data);
+    }
+
+    public Cat<T> actNone(Consumer<Exception> consumer) {
+        data.map((op) -> {
+            if (op.hasNoValue()) {
+                try {
+                    consumer.accept(op.error());
+                } catch (Exception e) {
+                }
+            }
+            return op;
+        });
+
+        return new Cat<>(data);
+    }
+
+    public <R> Cat<R> noneMap(Function<Exception, Option<R>> transformer) {
+        Mono<Option<R>> mo = data.map((op) -> {
+            if (op.hasNoValue()) {
+                try {
+                    return transformer.apply(op.error());
+                } catch (Exception e) {
+                    return new None<>(e);
+                }
+            } else {
+                return new None<>();
+            }
+        });
+
+        return new Cat<>(mo);
+    }
+
     public <R> Cat<R> someFlatMap(Function<? super T, ? extends Mono<? extends Option<R>>> transformer) {
         Mono<Option<R>> mo = data.flatMap((op) -> {
             if (op.hasValue()) {
                 try {
                     return transformer.apply(op.value());
+                } catch (Exception e) {
+                    return Mono.just(new None<>(e));
+                }
+            } else {
+                return Mono.just(new None<>());
+            }
+        });
+        return new Cat<>(mo);
+    }
+
+    public <R> Cat<R> noneFlatMap(Function<Exception, Mono<Option<R>>> transformer) {
+        Mono<Option<R>> mo = data.flatMap((op) -> {
+            if (op.hasNoValue()) {
+                try {
+                    return transformer.apply(op.error());
                 } catch (Exception e) {
                     return Mono.just(new None<>(e));
                 }
