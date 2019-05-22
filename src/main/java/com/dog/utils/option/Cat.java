@@ -30,9 +30,22 @@ public class Cat<T> {
         return new Cat<>(t);
     }
 
+    public static <T> Cat<T> of(Option<T> t) {
+        return new Cat<>(t);
+    }
+
     public static <T> Cat<T> empty() {
         return new Cat<>();
     }
+
+    public static <T> Cat<T> empty(String err) {
+        return new Cat<>(Option.empty(err));
+    }
+
+    public static <T> Cat<T> empty(Exception e) {
+        return new Cat<>(Option.empty(e));
+    }
+
 
     public static <T> Option<T> mapOf(T t) {
         return new Some<>(t);
@@ -40,6 +53,10 @@ public class Cat<T> {
 
     public static <T> Option<T> mapEmpty() {
         return new None<>();
+    }
+
+    public static <T> Option<T> mapEmpty(String err) {
+        return new None<>(new Exception(err));
     }
 
     public static <T> Option<T> mapEmpty(Exception e) {
@@ -50,8 +67,16 @@ public class Cat<T> {
         return Mono.just(Option.of(t));
     }
 
+    public static <T> Mono<Option<T>> flatMapOf(Option<T> t) {
+        return Mono.just(t);
+    }
+
     public static <T> Mono<Option<T>> flatMapEmpty() {
         return Mono.just(Option.empty());
+    }
+
+    public static <T> Mono<Option<T>> flatMapEmpty(String err) {
+        return Mono.just(Option.empty(err));
     }
 
     public static <T> Mono<Option<T>> flatMapEmpty(Exception e) {
@@ -133,6 +158,21 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
+    public <R> Cat<R> someFlatMapCat(Function<? super T, Cat<R>> transformer) {
+        Mono<Option<R>> mo = data.flatMap((op) -> {
+            if (op.hasValue()) {
+                try {
+                    return transformer.apply(op.value()).getData();
+                } catch (Exception e) {
+                    return Mono.just(Option.empty(e));
+                }
+            } else {
+                return Mono.just(Option.empty());
+            }
+        });
+        return new Cat<>(mo);
+    }
+
     public Cat<T> noneFlatMap(Function<Exception, Mono<Option<T>>> transformer) {
         Mono<Option<T>> mo = data.flatMap((op) -> {
             if (op.hasNoValue()) {
@@ -148,17 +188,41 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
+    public Cat<T> noneFlatMapCat(Function<Exception, Cat<T>> transformer) {
+        Mono<Option<T>> mo = data.flatMap((op) -> {
+            if (op.hasNoValue()) {
+                try {
+                    return transformer.apply(op.error()).getData();
+                } catch (Exception e) {
+                    return Mono.just(Option.empty(e));
+                }
+            } else {
+                return Mono.just(op);
+            }
+        });
+        return new Cat<>(mo);
+    }
+
     public Mono<Option<T>> getData() {
         return data;
     }
 
-    public T get() throws Exception {
+    public T get() {
         Option<T> option = data.block();
         assert option != null;
         if (option.hasValue()) {
             return option.value();
         }
-        throw option.error();
+        throw new RuntimeException(option.error());
+    }
+
+    public T get(RuntimeException e) {
+        Option<T> option = data.block();
+        assert option != null;
+        if (option.hasValue()) {
+            return option.value();
+        }
+        throw e;
     }
 
     public T getOrElse(T back) {
