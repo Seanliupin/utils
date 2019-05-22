@@ -26,6 +26,18 @@ public class CatTest {
                 .someMap((s) -> new Some<>(s.length()))
                 .getOrElse(5);
         Assert.assertEquals("should equal", str.length(), mapLen);
+
+        cat = Cat.of("str");
+        catLen = cat.someMap((s) -> {
+            fakeError();
+            return new Some<>(s.length());
+        });
+
+        Assert.assertEquals("should equal", 3, len);
+    }
+
+    private void fakeError() {
+        throw new RuntimeException("");
     }
 
     @Test

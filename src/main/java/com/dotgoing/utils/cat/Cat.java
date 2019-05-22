@@ -13,7 +13,7 @@ public class Cat<T> {
     private final Mono<Option<T>> data;
 
     private Cat(T t) {
-        data = Mono.just(new Some(t));
+        data = Mono.just(new Some<>(t));
     }
 
     private Cat(Mono<Option<T>> d) {
@@ -21,7 +21,7 @@ public class Cat<T> {
     }
 
     private Cat() {
-        data = Mono.just(new None());
+        data = Mono.just(new None<>());
     }
 
     public Cat(Option<T> t) {
@@ -40,25 +40,32 @@ public class Cat<T> {
     public <R> Cat<R> someMap(Function<? super T, ? extends Option<? extends R>> transformer) {
         Mono<Option<R>> mo = data.map((op) -> {
             if (op.hasValue()) {
-                return op.flatMap(transformer);
+                try {
+                    return op.flatMap(transformer);
+                } catch (Exception e) {
+                    return new None<>(e);
+                }
             } else {
                 return new None<>();
             }
         });
 
-        return new Cat(mo);
+        return new Cat<>(mo);
     }
 
     public <R> Cat<R> someFlatMap(Function<? super T, ? extends Mono<? extends Option<R>>> transformer) {
         Mono<Option<R>> mo = data.flatMap((op) -> {
             if (op.hasValue()) {
-                Mono<? extends Option<R>> s = transformer.apply(op.value());
-                return s;
+                try {
+                    return transformer.apply(op.value());
+                } catch (Exception e) {
+                    return Mono.just(new None<>(e));
+                }
             } else {
                 return Mono.just(new None<>());
             }
         });
-        return new Cat(mo);
+        return new Cat<>(mo);
     }
 
     public Option<T> block() {
@@ -67,7 +74,7 @@ public class Cat<T> {
 
     public T getOrElse(T back) {
         Option<T> option = data.block();
-        if (option.hasValue()) {
+        if (option != null && option.hasValue()) {
             return option.value();
         }
         return back;

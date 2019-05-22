@@ -4,7 +4,19 @@ import java.util.function.Function;
 
 public final class None<T> extends Option<T> {
 
+    private final Exception defaultError = new Exception("none default error");
+    private final Exception err;
+
     public None() {
+        err = defaultError;
+    }
+
+    public None(Exception err) {
+        this.err = err;
+    }
+
+    public Exception getErr() {
+        return err;
     }
 
     @Override
