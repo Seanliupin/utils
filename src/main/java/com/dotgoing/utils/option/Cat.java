@@ -1,7 +1,6 @@
-package com.dotgoing.utils.cat;
+package com.dotgoing.utils.option;
 
 
-import com.dotgoing.utils.option.Option;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Consumer;
@@ -35,16 +34,27 @@ public class Cat<T> {
         return new Cat<>();
     }
 
-    public static <T> Mono<Option<T>> mapOf(T t) {
+    public static <T> Option<T> mapOf(T t) {
+        return new Some<>(t);
+    }
 
+    public static <T> Option<T> mapEmpty() {
+        return new None<>();
+    }
+
+    public static <T> Option<T> mapEmpty(Exception e) {
+        return new None<>(e);
+    }
+
+    public static <T> Mono<Option<T>> flatMapOf(T t) {
         return Mono.just(Option.of(t));
     }
 
-    public static <T> Mono<Option<T>> mapEmpty() {
+    public static <T> Mono<Option<T>> flatMapEmpty() {
         return Mono.just(Option.empty());
     }
 
-    public static <T> Mono<Option<T>> mapEmpty(Exception e) {
+    public static <T> Mono<Option<T>> flatMapEmpty(Exception e) {
         return Mono.just(Option.empty(e));
     }
 

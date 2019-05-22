@@ -1,6 +1,6 @@
 package com.dotgoing.utils.core;
 
-import com.dotgoing.utils.cat.Cat;
+import com.dotgoing.utils.option.Cat;
 import com.dotgoing.utils.option.Option;
 import org.junit.Assert;
 import org.junit.Test;
@@ -84,13 +84,19 @@ public class CatTest {
 
         strValue = someStr.someFlatMap((t) -> {
             fakeError();
-            return Cat.mapOf(mapStr);
+            return Cat.flatMapOf(mapStr);
         }).getOrElse(defaultStr);
         Assert.assertEquals(defaultStr, strValue);
 
+        intValue = someStr.someMap((t) -> {
+            fakeError();
+            return Option.of(mapInt);
+        }).getOrElse(defaultInt);
+        Assert.assertEquals(defaultInt, intValue);
+
         intValue = someStr.someFlatMap((t) -> {
             fakeError();
-            return Cat.mapOf(mapInt);
+            return Cat.flatMapOf(mapInt);
         }).getOrElse(defaultInt);
         Assert.assertEquals(defaultInt, intValue);
 
