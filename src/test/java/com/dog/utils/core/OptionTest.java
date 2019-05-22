@@ -1,6 +1,6 @@
-package com.dotgoing.utils.core;
+package com.dog.utils.core;
 
-import com.dotgoing.utils.option.Option;
+import com.dog.utils.option.Option;
 import org.junit.Assert;
 import org.junit.Test;
 
