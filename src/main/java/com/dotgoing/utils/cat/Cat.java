@@ -72,6 +72,10 @@ public class Cat<T> {
         return data.block();
     }
 
+    public Option<T> value() {
+        return data.block();
+    }
+
     public T getOrElse(T back) {
         Option<T> option = data.block();
         if (option != null && option.hasValue()) {

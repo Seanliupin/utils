@@ -1,6 +1,7 @@
 package com.dotgoing.utils.core;
 
 import com.dotgoing.utils.cat.Cat;
+import com.dotgoing.utils.option.None;
 import com.dotgoing.utils.option.Some;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,12 +33,15 @@ public class CatTest {
             fakeError();
             return new Some<>(s.length());
         });
-
-        Assert.assertEquals("should equal", 3, len);
+//        因为someMap的时候出错了，因此只能取默认值
+        len = catLen.getOrElse(5);
+        Assert.assertEquals("should equal", 5, len);
+        None<Integer> errorNone = (None<Integer>) catLen.value();
+        Assert.assertEquals("should equal", "fake error", errorNone.getErr().getMessage());
     }
 
     private void fakeError() {
-        throw new RuntimeException("");
+        throw new RuntimeException("fake error");
     }
 
     @Test
