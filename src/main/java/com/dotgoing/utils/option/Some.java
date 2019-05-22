@@ -5,7 +5,7 @@ import java.util.function.Function;
 public final class Some<T> extends Option<T> {
     private final T t;
 
-    public Some(T t) {
+    Some(T t) {
         this.t = t;
     }
 
@@ -19,7 +19,7 @@ public final class Some<T> extends Option<T> {
         try {
             return new Some<>(transformer.apply(value()));
         } catch (Exception e) {
-            return new None<>(e);
+            return Option.empty(e);
         }
     }
 
@@ -28,7 +28,7 @@ public final class Some<T> extends Option<T> {
         try {
             return (Option<R>) transformer.apply(value());
         } catch (Exception e) {
-            return new None<>(e);
+            return Option.empty(e);
         }
     }
 

@@ -1,9 +1,7 @@
 package com.dotgoing.utils.cat;
 
 
-import com.dotgoing.utils.option.None;
 import com.dotgoing.utils.option.Option;
-import com.dotgoing.utils.option.Some;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Consumer;
@@ -14,7 +12,7 @@ public class Cat<T> {
     private final Mono<Option<T>> data;
 
     private Cat(T t) {
-        data = Mono.just(new Some<>(t));
+        data = Mono.just(Option.of(t));
     }
 
     private Cat(Mono<Option<T>> d) {
@@ -22,7 +20,7 @@ public class Cat<T> {
     }
 
     private Cat() {
-        data = Mono.just(new None<>());
+        data = Mono.just(Option.empty());
     }
 
     public Cat(Option<T> t) {
@@ -44,10 +42,10 @@ public class Cat<T> {
                 try {
                     return op.flatMap(transformer);
                 } catch (Exception e) {
-                    return new None<>(e);
+                    return Option.empty(e);
                 }
             } else {
-                return new None<>();
+                return Option.empty();
             }
         });
 
@@ -55,7 +53,7 @@ public class Cat<T> {
     }
 
     public Cat<T> actSome(Consumer<T> consumer) {
-        data.map((op) -> {
+        Mono<Option<T>> mid = data.map((op) -> {
             if (op.hasValue()) {
                 try {
                     consumer.accept(op.value());
@@ -65,7 +63,7 @@ public class Cat<T> {
             return op;
         });
 
-        return new Cat<>(data);
+        return new Cat<>(mid);
     }
 
     public Cat<T> actNone(Consumer<Exception> consumer) {
@@ -88,10 +86,10 @@ public class Cat<T> {
                 try {
                     return transformer.apply(op.error());
                 } catch (Exception e) {
-                    return new None<>(e);
+                    return Option.empty(e);
                 }
             } else {
-                return new None<>();
+                return Option.empty();
             }
         });
 
@@ -104,10 +102,10 @@ public class Cat<T> {
                 try {
                     return transformer.apply(op.value());
                 } catch (Exception e) {
-                    return Mono.just(new None<>(e));
+                    return Mono.just(Option.empty(e));
                 }
             } else {
-                return Mono.just(new None<>());
+                return Mono.just(Option.empty());
             }
         });
         return new Cat<>(mo);
@@ -119,10 +117,10 @@ public class Cat<T> {
                 try {
                     return transformer.apply(op.error());
                 } catch (Exception e) {
-                    return Mono.just(new None<>(e));
+                    return Mono.just(Option.empty(e));
                 }
             } else {
-                return Mono.just(new None<>());
+                return Mono.just(Option.empty());
             }
         });
         return new Cat<>(mo);
@@ -134,6 +132,10 @@ public class Cat<T> {
 
     public Option<T> value() {
         return data.block();
+    }
+
+    public Mono<Option<T>> getData() {
+        return data;
     }
 
     public T getOrElse(T back) {

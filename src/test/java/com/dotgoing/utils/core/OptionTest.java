@@ -1,8 +1,6 @@
 package com.dotgoing.utils.core;
 
-import com.dotgoing.utils.option.None;
 import com.dotgoing.utils.option.Option;
-import com.dotgoing.utils.option.Some;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,12 +9,12 @@ public class OptionTest {
     @Test
     public void map_test() {
         String str = "hallo";
-        Option<String> some = new Some<>(str);
+        Option<String> some = Option.of(str);
         Option<Integer> afterMap = some.map(String::length);
 
         Assert.assertEquals("", (int) afterMap.value(), str.length());
 
-        Option<String> none = new None<>();
+        Option<String> none = Option.empty();
         afterMap = none.map(String::length);
 
         Assert.assertFalse(afterMap.hasValue());
@@ -26,15 +24,15 @@ public class OptionTest {
     @Test
     public void flat_map_test() {
         final String str = "hallo";
-        final Option<String> some = new Some<>(str);
-        Option<Integer> afterMap = some.flatMap((r) -> new Some<>(r.length()));
+        final Option<String> some = Option.of(str);
+        Option<Integer> afterMap = some.flatMap((r) -> Option.of(r.length()));
         Assert.assertEquals("", (int) afterMap.value(), str.length());
 
-        Option<Integer> noMap = some.flatMap((r) -> new None<>());
+        Option<Integer> noMap = some.flatMap((r) -> Option.empty());
         Assert.assertFalse(noMap.hasValue());
 
-        final Option<String> none = new None<>();
-        afterMap = none.flatMap((r) -> new Some<>(r.length()));
+        final Option<String> none = Option.empty();
+        afterMap = none.flatMap((r) -> Option.of(r.length()));
         Assert.assertFalse(afterMap.hasValue());
     }
 }

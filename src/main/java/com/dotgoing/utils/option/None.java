@@ -7,11 +7,11 @@ public final class None<T> extends Option<T> {
     private final Exception defaultError = new Exception("none default error");
     private final Exception err;
 
-    public None() {
+    None() {
         err = defaultError;
     }
 
-    public None(Exception err) {
+    None(Exception err) {
         this.err = err;
     }
 
@@ -22,12 +22,12 @@ public final class None<T> extends Option<T> {
 
     @Override
     public <R> Option<R> map(Function<? super T, ? extends R> transformer) {
-        return new None<>();
+        return Option.empty();
     }
 
     @Override
     public <R> Option<R> flatMap(Function<? super T, ? extends Option<? extends R>> transformer) {
-        return new None<>();
+        return Option.empty();
     }
 
     @Override
@@ -42,7 +42,7 @@ public final class None<T> extends Option<T> {
 
     @Override
     public String toString() {
-        return "None()";
+        return "None(" + err.toString() + ")";
     }
 }
 
