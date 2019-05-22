@@ -11,7 +11,6 @@ public class CatTest {
 
     @Test
     public void map_test() {
-
         Cat<String> cat = Cat.of("str");
         Cat<Integer> catLen = cat.someMap((s) -> new Some<>(s.length()));
         int len = catLen.getOrElse(5);
@@ -40,10 +39,6 @@ public class CatTest {
         Assert.assertEquals("should equal", "fake error", errorNone.error().getMessage());
     }
 
-    private void fakeError() {
-        throw new RuntimeException("fake error");
-    }
-
     @Test
     public void flat_map_test() {
         Cat<String> cat = Cat.of("str");
@@ -61,5 +56,25 @@ public class CatTest {
                 .someFlatMap((s) -> Mono.just(new Some<>(s.length())))
                 .getOrElse(5);
         Assert.assertEquals("should equal", str.length(), mapLen);
+
+        cat = Cat.of("str");
+        catLen = cat.someFlatMap((s) -> {
+            fakeError();
+            return Mono.just(new Some<>(s.length()));
+        });
+        len = catLen.getOrElse(5);
+        Assert.assertEquals("should equal", 5, len);
+        None<Integer> errorNone = (None<Integer>) catLen.value();
+        Assert.assertEquals("should equal", "fake error", errorNone.error().getMessage());
     }
+
+    @Test
+    public void exception_test() {
+
+    }
+
+    private void fakeError() {
+        throw new RuntimeException("fake error");
+    }
+
 }
