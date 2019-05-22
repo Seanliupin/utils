@@ -45,7 +45,7 @@ public class Cat<T> {
                     return Option.empty(e);
                 }
             } else {
-                return Option.empty();
+                return Option.empty(op.error());
             }
         });
 
@@ -80,8 +80,8 @@ public class Cat<T> {
         return new Cat<>(data);
     }
 
-    public <R> Cat<R> noneMap(Function<Exception, Option<R>> transformer) {
-        Mono<Option<R>> mo = data.map((op) -> {
+    public Cat<T> noneMap(Function<Exception, Option<T>> transformer) {
+        Mono<Option<T>> mo = data.map((op) -> {
             if (op.hasNoValue()) {
                 try {
                     return transformer.apply(op.error());
@@ -89,7 +89,7 @@ public class Cat<T> {
                     return Option.empty(e);
                 }
             } else {
-                return Option.empty();
+                return op;
             }
         });
 
@@ -111,8 +111,8 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
-    public <R> Cat<R> noneFlatMap(Function<Exception, Mono<Option<R>>> transformer) {
-        Mono<Option<R>> mo = data.flatMap((op) -> {
+    public Cat<T> noneFlatMap(Function<Exception, Mono<Option<T>>> transformer) {
+        Mono<Option<T>> mo = data.flatMap((op) -> {
             if (op.hasNoValue()) {
                 try {
                     return transformer.apply(op.error());
@@ -120,7 +120,7 @@ public class Cat<T> {
                     return Mono.just(Option.empty(e));
                 }
             } else {
-                return Mono.just(Option.empty());
+                return Mono.just(op);
             }
         });
         return new Cat<>(mo);
