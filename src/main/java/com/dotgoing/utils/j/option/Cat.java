@@ -52,7 +52,7 @@ public class Cat<T> {
                 Mono<? extends Option<R>> s = transformer.apply(op.value());
                 return s;
             } else {
-                return Mono.just(new None<R>());
+                return Mono.just(new None<>());
             }
         });
         return new Cat(mo);
