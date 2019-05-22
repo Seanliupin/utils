@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core.option;
+package com.dotgoing.utils.option;
 
 public class OptionExtractionException extends RuntimeException {
     public OptionExtractionException() {

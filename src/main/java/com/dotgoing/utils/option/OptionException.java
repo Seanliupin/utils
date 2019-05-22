@@ -1,4 +1,4 @@
-package com.dotgoing.utils.core.option;
+package com.dotgoing.utils.option;
 
 public class OptionException extends RuntimeException {
     private int code = 0;

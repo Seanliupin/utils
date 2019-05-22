@@ -1,5 +1,7 @@
-package com.dotgoing.utils.j.option;
+package com.dotgoing.utils.core;
 
+import com.dotgoing.utils.cat.Cat;
+import com.dotgoing.utils.option.Some;
 import org.junit.Assert;
 import org.junit.Test;
 import reactor.core.publisher.Mono;

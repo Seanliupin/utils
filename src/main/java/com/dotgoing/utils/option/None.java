@@ -1,4 +1,4 @@
-package com.dotgoing.utils.j.option;
+package com.dotgoing.utils.option;
 
 import java.util.function.Function;
 
