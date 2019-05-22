@@ -23,10 +23,9 @@ public class Cat<T> {
         data = Mono.just(Option.empty());
     }
 
-    public Cat(Option<T> t) {
+    private Cat(Option<T> t) {
         data = Mono.just(t);
     }
-
 
     public static <T> Cat<T> of(T t) {
         return new Cat<>(t);
@@ -34,6 +33,19 @@ public class Cat<T> {
 
     public static <T> Cat<T> empty() {
         return new Cat<>();
+    }
+
+    public static <T> Mono<Option<T>> mapOf(T t) {
+
+        return Mono.just(Option.of(t));
+    }
+
+    public static <T> Mono<Option<T>> mapEmpty() {
+        return Mono.just(Option.empty());
+    }
+
+    public static <T> Mono<Option<T>> mapEmpty(Exception e) {
+        return Mono.just(Option.empty(e));
     }
 
     public <R> Cat<R> someMap(Function<? super T, ? extends Option<? extends R>> transformer) {
