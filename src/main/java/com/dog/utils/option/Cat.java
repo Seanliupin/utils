@@ -114,7 +114,7 @@ public class Cat<T> {
     }
 
     public Cat<T> actOnNone(Consumer<Exception> consumer) {
-        data.map((op) -> {
+        Mono<Option<T>> mid = data.map((op) -> {
             if (op.hasNoValue()) {
                 try {
                     consumer.accept(op.error());
@@ -124,7 +124,7 @@ public class Cat<T> {
             return op;
         });
 
-        return new Cat<>(data);
+        return new Cat<>(mid);
     }
 
     public Cat<T> noneMap(Function<Exception, Option<T>> transformer) {

@@ -5,6 +5,8 @@ import com.dog.utils.option.Option;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class CatTest {
 
     @Test
@@ -38,6 +40,30 @@ public class CatTest {
         Assert.assertEquals(originStr, strValue);
         strValue = noStr.noneMap((t) -> Option.of(mapStr)).getOrElse(defaultStr);
         Assert.assertEquals(mapStr, strValue);
+    }
+
+    @Test
+    public void act_test() {
+        Cat<String> someStr = Cat.of("origin");
+        Cat<String> noStr = Cat.empty();
+
+        AtomicInteger intData = new AtomicInteger(0);
+
+        intData.set(0);
+        noStr.actOnSome((d) -> intData.set(10)).getData().block();
+        Assert.assertEquals(0, intData.get());
+
+        intData.set(0);
+        someStr.actOnSome((d) -> intData.set(20)).getData().block();
+        Assert.assertEquals(20, intData.get());
+
+        intData.set(0);
+        noStr.actOnNone((d) -> intData.set(30)).getData().block();
+        Assert.assertEquals(30, intData.get());
+
+        intData.set(0);
+        someStr.actOnNone((d) -> intData.set(40)).getData().block();
+        Assert.assertEquals(0, intData.get());
     }
 
     @Test
