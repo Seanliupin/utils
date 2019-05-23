@@ -4,7 +4,6 @@ import com.dog.utils.option.Cat;
 import com.dog.utils.option.Option;
 import org.junit.Assert;
 import org.junit.Test;
-import reactor.core.publisher.Mono;
 
 public class CatTest {
 
@@ -53,14 +52,14 @@ public class CatTest {
         Cat<String> noStr = Cat.empty();
         int intValue;
 
-        intValue = someStr.someFlatMap((t) -> Mono.just(Option.of(mapInt))).getOrElse(defaultInt);
+        intValue = someStr.someFlatMap((t) -> Cat.of(Option.of(mapInt))).getOrElse(defaultInt);
         Assert.assertEquals(mapInt, intValue);
-        intValue = noStr.someFlatMap((t) -> Mono.just(Option.of(mapInt))).getOrElse(defaultInt);
+        intValue = noStr.someFlatMap((t) -> Cat.of(Option.of(mapInt))).getOrElse(defaultInt);
         Assert.assertEquals(defaultInt, intValue);
 
-        strValue = someStr.noneFlatMap((t) -> Mono.just(Option.of(mapStr))).getOrElse(defaultStr);
+        strValue = someStr.noneFlatMap((t) -> Cat.of(Option.of(mapStr))).getOrElse(defaultStr);
         Assert.assertEquals(originStr, strValue);
-        strValue = noStr.noneFlatMap((t) -> Mono.just(Option.of(mapStr))).getOrElse(defaultStr);
+        strValue = noStr.noneFlatMap((t) -> Cat.of(Option.of(mapStr))).getOrElse(defaultStr);
         Assert.assertEquals(mapStr, strValue);
     }
 
@@ -84,7 +83,7 @@ public class CatTest {
 
         strValue = someStr.someFlatMap((t) -> {
             fakeError();
-            return Cat.flatMapOf(mapStr);
+            return Cat.of(mapStr);
         }).getOrElse(defaultStr);
         Assert.assertEquals(defaultStr, strValue);
 
@@ -96,7 +95,7 @@ public class CatTest {
 
         intValue = someStr.someFlatMap((t) -> {
             fakeError();
-            return Cat.flatMapOf(mapInt);
+            return Cat.of(mapInt);
         }).getOrElse(defaultInt);
         Assert.assertEquals(defaultInt, intValue);
 
