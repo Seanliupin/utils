@@ -13,7 +13,7 @@ public abstract class Option<T> {
     }
 
     public static <T> Option<T> empty(String err) {
-        return new None<>(new Exception(err));
+        return new None<>(err);
     }
 
     public static <T> Option<T> empty(Exception e) {

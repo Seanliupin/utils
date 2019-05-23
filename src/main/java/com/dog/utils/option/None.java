@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 public final class None<T> extends Option<T> {
 
-    private final Exception defaultError = new Exception("none default error");
+    private final Exception defaultError = new OptionException("none default error");
     private final Exception err;
 
     None() {
@@ -13,6 +13,10 @@ public final class None<T> extends Option<T> {
 
     None(Exception err) {
         this.err = err;
+    }
+
+    None(String err) {
+        this.err = new OptionException(err);
     }
 
     @Override

@@ -152,7 +152,7 @@ public class Cat<T> {
                     return Mono.just(Option.empty(e));
                 }
             } else {
-                return Mono.just(Option.empty());
+                return Mono.just(Option.empty(op.error()));
             }
         });
         return new Cat<>(mo);
@@ -167,7 +167,7 @@ public class Cat<T> {
                     return Mono.just(Option.empty(e));
                 }
             } else {
-                return Mono.just(Option.empty());
+                return Mono.just(Option.empty(op.error()));
             }
         });
         return new Cat<>(mo);
@@ -213,6 +213,11 @@ public class Cat<T> {
         if (option.hasValue()) {
             return option.value();
         }
+
+        if (option.error() instanceof RuntimeException) {
+            throw (RuntimeException) option.error();
+        }
+
         throw new RuntimeException(option.error());
     }
 
@@ -222,6 +227,7 @@ public class Cat<T> {
         if (option.hasValue()) {
             return option.value();
         }
+
         throw e;
     }
 
