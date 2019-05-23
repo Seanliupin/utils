@@ -35,7 +35,7 @@ public final class None<T> extends Option<T> {
     }
 
     @Override
-    public T value() {
+    public T get() {
         throw new RuntimeException("none has no value");
     }
 

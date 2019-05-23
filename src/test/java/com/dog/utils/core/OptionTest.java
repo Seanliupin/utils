@@ -12,7 +12,7 @@ public class OptionTest {
         Option<String> some = Option.of(str);
         Option<Integer> afterMap = some.map(String::length);
 
-        Assert.assertEquals("", (int) afterMap.value(), str.length());
+        Assert.assertEquals("", (int) afterMap.get(), str.length());
 
         Option<String> none = Option.empty();
         afterMap = none.map(String::length);
@@ -26,7 +26,7 @@ public class OptionTest {
         final String str = "hallo";
         final Option<String> some = Option.of(str);
         Option<Integer> afterMap = some.flatMap((r) -> Option.of(r.length()));
-        Assert.assertEquals("", (int) afterMap.value(), str.length());
+        Assert.assertEquals("", (int) afterMap.get(), str.length());
 
         Option<Integer> noMap = some.flatMap((r) -> Option.empty());
         Assert.assertFalse(noMap.hasValue());

@@ -17,7 +17,7 @@ public final class Some<T> extends Option<T> {
     @Override
     public <R> Option<R> map(Function<? super T, ? extends R> transformer) {
         try {
-            return new Some<>(transformer.apply(value()));
+            return new Some<>(transformer.apply(get()));
         } catch (Exception e) {
             return Option.empty(e);
         }
@@ -26,14 +26,14 @@ public final class Some<T> extends Option<T> {
     @Override
     public <R> Option<R> flatMap(Function<? super T, ? extends Option<? extends R>> transformer) {
         try {
-            return (Option<R>) transformer.apply(value());
+            return (Option<R>) transformer.apply(get());
         } catch (Exception e) {
             return Option.empty(e);
         }
     }
 
     @Override
-    public T value() {
+    public T get() {
         return t;
     }
 

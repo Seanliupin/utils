@@ -103,7 +103,7 @@ public class Cat<T> {
         Mono<Option<T>> mid = data.map((op) -> {
             if (op.hasValue()) {
                 try {
-                    consumer.accept(op.value());
+                    consumer.accept(op.get());
                 } catch (Exception e) {
                 }
             }
@@ -147,7 +147,7 @@ public class Cat<T> {
         Mono<Option<R>> mo = data.flatMap((op) -> {
             if (op.hasValue()) {
                 try {
-                    return transformer.apply(op.value()).getData();
+                    return transformer.apply(op.get()).getData();
                 } catch (Exception e) {
                     return Mono.just(Option.empty(e));
                 }
@@ -181,7 +181,7 @@ public class Cat<T> {
         Option<T> option = data.block();
         assert option != null;
         if (option.hasValue()) {
-            return option.value();
+            return option.get();
         }
 
         if (option.error() instanceof RuntimeException) {
@@ -195,7 +195,7 @@ public class Cat<T> {
         Option<T> option = data.block();
         assert option != null;
         if (option.hasValue()) {
-            return option.value();
+            return option.get();
         }
 
         throw e;
@@ -205,7 +205,7 @@ public class Cat<T> {
         Option<T> option = data.block();
         assert option != null;
         if (option.hasValue()) {
-            return option.value();
+            return option.get();
         }
         return back;
     }
