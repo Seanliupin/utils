@@ -23,9 +23,9 @@ public class CatTest {
         strValue = noStr.getOrElse(defaultStr);
         Assert.assertEquals(defaultStr, strValue);
 
-        strValue = someStr.actSome((t) -> fakeError()).getOrElse(defaultStr);
+        strValue = someStr.actOnSome((t) -> fakeError()).getOrElse(defaultStr);
         Assert.assertEquals(originStr, strValue);
-        strValue = noStr.actSome((t) -> fakeError()).getOrElse(defaultStr);
+        strValue = noStr.actOnSome((t) -> fakeError()).getOrElse(defaultStr);
         Assert.assertEquals(defaultStr, strValue);
 
         int intValue;

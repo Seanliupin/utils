@@ -99,7 +99,7 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
-    public Cat<T> actSome(Consumer<T> consumer) {
+    public Cat<T> actOnSome(Consumer<T> consumer) {
         Mono<Option<T>> mid = data.map((op) -> {
             if (op.hasValue()) {
                 try {
@@ -113,7 +113,7 @@ public class Cat<T> {
         return new Cat<>(mid);
     }
 
-    public Cat<T> actNone(Consumer<Exception> consumer) {
+    public Cat<T> actOnNone(Consumer<Exception> consumer) {
         data.map((op) -> {
             if (op.hasNoValue()) {
                 try {
