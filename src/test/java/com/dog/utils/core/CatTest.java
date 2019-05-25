@@ -64,6 +64,15 @@ public class CatTest {
         intData.set(0);
         someStr.actOnNone((d) -> intData.set(40)).getData().block();
         Assert.assertEquals(0, intData.get());
+
+        intData.set(0);
+        noStr.act((d) -> intData.set(30)).getData().block();
+        Assert.assertEquals(30, intData.get());
+
+        intData.set(0);
+        someStr.act((d) -> intData.set(40)).getData().block();
+        Assert.assertEquals(40, intData.get());
+
     }
 
     @Test

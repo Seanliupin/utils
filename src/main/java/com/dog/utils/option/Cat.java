@@ -117,6 +117,19 @@ public class Cat<T> {
         return new Cat<>(mid);
     }
 
+    public Cat<T> act(Consumer<Option<T>> consumer) {
+        Mono<Option<T>> mid = data.map((op) -> {
+            try {
+                consumer.accept(op);
+            } catch (Exception e) {
+            }
+            return op;
+        });
+
+        return new Cat<>(mid);
+    }
+
+
     public Cat<T> actOnNone(Consumer<Exception> consumer) {
         Mono<Option<T>> mid = data.map((op) -> {
             if (op.hasNoValue()) {
