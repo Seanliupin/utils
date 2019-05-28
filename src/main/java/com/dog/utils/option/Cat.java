@@ -194,6 +194,10 @@ public class Cat<T> {
         return data;
     }
 
+    public Option<T> getOption() {
+        return data.block();
+    }
+
     public T get() {
         Option<T> option = data.block();
         assert option != null;
