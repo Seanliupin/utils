@@ -1,6 +1,7 @@
 package com.dog.utils.option;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public abstract class Option<T> {
 
@@ -32,6 +33,13 @@ public abstract class Option<T> {
         } else {
             return back;
         }
+    }
+
+    public Option<T> makeSure(Predicate<T> predicate) {
+        if (hasValue() && !predicate.test(get())) {
+            return Option.empty();
+        }
+        return this;
     }
 
     public abstract Exception error();
