@@ -26,6 +26,14 @@ public abstract class Option<T> {
 
     public abstract T get();
 
+    public T getOrElse(T back) {
+        if (hasValue()) {
+            return get();
+        } else {
+            return back;
+        }
+    }
+
     public abstract Exception error();
 
     public abstract boolean hasValue();
