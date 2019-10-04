@@ -28,8 +28,7 @@ public class Cat<T> {
 
     public static <T> Cat<T> of(T t) {
         if (t == null) {
-            //这里直接抛出异常，至于如何处理和解释这个异常，交由用户自己处理
-            throw new CatInitException("can not init cat by null value");
+            return empty(new CatInitException("can not init cat by null value"));
         }
         return new Cat<>(t);
     }
