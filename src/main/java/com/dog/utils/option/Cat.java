@@ -201,6 +201,16 @@ public class Cat<T> {
         return data;
     }
 
+    public Mono<T> getMono() {
+        return data.map((a) -> {
+            if (a.hasValue()) {
+                return a.get();
+            } else {
+                throw new OptionException(a.error());
+            }
+        });
+    }
+
     public Option<T> getOption() {
         return data.block();
     }
