@@ -2,12 +2,18 @@ package com.dog.utils.option;
 
 
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.NonBlocking;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Cat<T> {
 
+    private static ExecutorService service = Executors.newFixedThreadPool(3);
     private final Mono<Option<T>> data;
 
     private Cat(T t) {
@@ -24,6 +30,13 @@ public class Cat<T> {
 
     private Cat(Option<T> t) {
         data = Mono.just(t);
+    }
+
+    public static void setService(ExecutorService newService) {
+        if (newService == null) {
+            throw new NullPointerException("server should not be null");
+        }
+        service = newService;
     }
 
     public static <T> Cat<T> of(T t) {
@@ -218,7 +231,12 @@ public class Cat<T> {
     public T get() {
         Option<T> option;
         try {
-            option = data.block();
+            if (Thread.currentThread() instanceof NonBlocking) {
+                Future<Option<T>> future = service.submit((Callable<Option<T>>) data::block);
+                option = future.get();
+            } else {
+                option = data.block();
+            }
             assert option != null;
             if (option.hasValue()) {
                 return option.get();
