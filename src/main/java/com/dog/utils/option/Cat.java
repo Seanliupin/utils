@@ -206,10 +206,15 @@ public class Cat<T> {
     }
 
     public T get() {
-        Option<T> option = data.block();
-        assert option != null;
-        if (option.hasValue()) {
-            return option.get();
+        Option<T> option;
+        try {
+            option = data.block();
+            assert option != null;
+            if (option.hasValue()) {
+                return option.get();
+            }
+        } catch (Exception e) {
+            option = None.empty(new OptionException(e));
         }
 
         if (option.error() instanceof RuntimeException) {
