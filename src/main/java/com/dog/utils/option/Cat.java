@@ -143,6 +143,14 @@ public class Cat<T> {
         return new Cat<>(mid);
     }
 
+    /**
+     * 如果没有值，通过 noneMap 可以补救一下，以返回一个具体值。
+     * 也可以返回一个None，带上一个语义更加清晰的异常，以让调用者捕获该异常
+     * 也可以直接抛出一个异常，则该异常会被包装到None对象中，以最终传递给调用者
+     *
+     * @param transformer
+     * @return
+     */
     public Cat<T> noneMap(Function<Exception, Option<T>> transformer) {
         Mono<Option<T>> mo = data.map((op) -> {
             if (op.hasNoValue()) {
