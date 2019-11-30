@@ -219,7 +219,11 @@ public class Cat<T> {
             if (a.hasValue()) {
                 return a.get();
             } else {
-                throw new OptionException(a.error());
+                if (a.error() instanceof RuntimeException) {
+                    throw (RuntimeException) a.error();
+                } else {
+                    throw new OptionException(a.error());
+                }
             }
         });
     }
