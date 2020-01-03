@@ -6,10 +6,7 @@ import java.util.function.Predicate;
 public abstract class Option<T> {
 
     public static <T> Option<T> of(T t) {
-        if (t == null) {
-            return empty();
-        }
-        return new Some<>(t);
+        return (t == null) ? empty() : new Some<>(t);
     }
 
     public static <T> Option<T> empty() {
