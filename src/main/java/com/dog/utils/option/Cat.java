@@ -99,22 +99,6 @@ public class Cat<T> {
         return Mono.just(Option.empty(e));
     }
 
-    public <R> Cat<R> someMap(Function<? super T, ? extends Option<? extends R>> transformer) {
-        Mono<Option<R>> mo = data.map((op) -> {
-            if (op.hasValue()) {
-                try {
-                    return op.flatMap(transformer);
-                } catch (Exception e) {
-                    return Option.empty(e);
-                }
-            } else {
-                return Option.empty(op.error());
-            }
-        });
-
-        return new Cat<>(mo);
-    }
-
     public Cat<T> actOnSome(Consumer<T> consumer) {
         Mono<Option<T>> mid = data.map((op) -> {
             if (op.hasValue()) {
@@ -180,18 +164,26 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
-    public <R> Cat<R> someFlatMap(Function<? super T, Cat<R>> transformer) {
-        Mono<Option<R>> mo = data.flatMap((op) -> {
+    /**
+     * 若有值，则映射。
+     *
+     * @param transformer
+     * @param <R>
+     * @return
+     */
+    public <R> Cat<R> someMap(Function<? super T, ? extends Option<? extends R>> transformer) {
+        Mono<Option<R>> mo = data.map((op) -> {
             if (op.hasValue()) {
                 try {
-                    return transformer.apply(op.get()).getData();
+                    return op.flatMap(transformer);
                 } catch (Exception e) {
-                    return Mono.just(Option.empty(e));
+                    return Option.empty(e);
                 }
             } else {
-                return Mono.just(Option.empty(op.error()));
+                return Option.empty(op.error());
             }
         });
+
         return new Cat<>(mo);
     }
 
@@ -205,6 +197,21 @@ public class Cat<T> {
                 }
             } else {
                 return Mono.just(op);
+            }
+        });
+        return new Cat<>(mo);
+    }
+
+    public <R> Cat<R> someFlatMap(Function<? super T, Cat<R>> transformer) {
+        Mono<Option<R>> mo = data.flatMap((op) -> {
+            if (op.hasValue()) {
+                try {
+                    return transformer.apply(op.get()).getData();
+                } catch (Exception e) {
+                    return Mono.just(Option.empty(e));
+                }
+            } else {
+                return Mono.just(Option.empty(op.error()));
             }
         });
         return new Cat<>(mo);
