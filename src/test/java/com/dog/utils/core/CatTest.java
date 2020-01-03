@@ -2,6 +2,7 @@ package com.dog.utils.core;
 
 import com.dog.utils.option.Cat;
 import com.dog.utils.option.Option;
+import com.dog.utils.option.Some;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -96,6 +97,39 @@ public class CatTest {
         Assert.assertEquals(originStr, strValue);
         strValue = noStr.noneFlatMap((t) -> Cat.of(Option.of(mapStr))).getOrElse(defaultStr);
         Assert.assertEquals(mapStr, strValue);
+    }
+
+
+    @Test
+    public void flat_either_map_test() {
+        String originStr = "origin-str";
+        int back = -1;
+        int mapInt = 10;
+        Cat<String> someStr = Cat.of(originStr);
+        Cat<String> noStr = Cat.empty();
+        int intValue;
+
+        intValue = someStr.eitherFlatMap((t) -> Cat.of(Option.of(mapInt)), (e) -> Cat.of(back)).get();
+        Assert.assertEquals(mapInt, intValue);
+
+        intValue = noStr.eitherFlatMap((t) -> Cat.of(Option.of(mapInt)), (e) -> Cat.of(back)).get();
+        Assert.assertEquals(back, intValue);
+    }
+
+    @Test
+    public void either_map_test() {
+        String originStr = "origin-str";
+        int back = -1;
+        int mapInt = 10;
+        Cat<String> someStr = Cat.of(originStr);
+        Cat<String> noStr = Cat.empty();
+        int intValue;
+
+        intValue = someStr.eitherMap((t) -> Option.of(mapInt), (e) -> Some.of(back)).get();
+        Assert.assertEquals(mapInt, intValue);
+
+        intValue = noStr.eitherMap((t) -> Option.of(mapInt), (e) -> Some.of(back)).get();
+        Assert.assertEquals(back, intValue);
     }
 
     @Test

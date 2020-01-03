@@ -187,6 +187,27 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
+    public <R> Cat<R> eitherMap(Function<? super T, ? extends Option<? extends R>> right,
+                                Function<Exception, Option<R>> left) {
+        Mono<Option<R>> mo = data.map((op) -> {
+            if (op.hasValue()) {
+                try {
+                    return op.flatMap(right);
+                } catch (Exception e) {
+                    return Option.empty(e);
+                }
+            } else {
+                try {
+                    return left.apply(op.error());
+                } catch (Exception e) {
+                    return Option.empty(e);
+                }
+            }
+        });
+
+        return new Cat<>(mo);
+    }
+
     public Cat<T> noneFlatMap(Function<Exception, Cat<T>> transformer) {
         Mono<Option<T>> mo = data.flatMap((op) -> {
             if (op.hasNoValue()) {
@@ -212,6 +233,25 @@ public class Cat<T> {
                 }
             } else {
                 return Mono.just(Option.empty(op.error()));
+            }
+        });
+        return new Cat<>(mo);
+    }
+
+    public <R> Cat<R> eitherFlatMap(Function<? super T, Cat<R>> right, Function<Exception, Cat<R>> left) {
+        Mono<Option<R>> mo = data.flatMap((op) -> {
+            if (op.hasValue()) {
+                try {
+                    return right.apply(op.get()).getData();
+                } catch (Exception e) {
+                    return Mono.just(Option.empty(e));
+                }
+            } else {
+                try {
+                    return left.apply(op.error()).getData();
+                } catch (Exception e) {
+                    return Mono.just(Option.empty(e));
+                }
             }
         });
         return new Cat<>(mo);
