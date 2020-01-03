@@ -26,6 +26,8 @@ public abstract class Option<T> {
 
     public abstract <R> Option<R> map(Function<? super T, ? extends R> transformer);
 
+    public abstract Option<T> filter(Predicate<? super T> predicate);
+
     public abstract <R> Option<R> flatMap(Function<? super T, ? extends Option<? extends R>> transformer);
 
     public abstract T get();

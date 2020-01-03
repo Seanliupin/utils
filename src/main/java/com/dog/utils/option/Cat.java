@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Cat<T> {
 
@@ -178,6 +179,22 @@ public class Cat<T> {
                     return op.flatMap(transformer);
                 } catch (Exception e) {
                     return Option.empty(e);
+                }
+            } else {
+                return Option.empty(op.error());
+            }
+        });
+
+        return new Cat<>(mo);
+    }
+
+    public Cat<T> filter(Predicate<? super T> predicate) {
+        Mono<Option<T>> mo = data.map((op) -> {
+            if (op.hasValue()) {
+                if (predicate.test(op.get())) {
+                    return op;
+                } else {
+                    return Option.empty("filter failed");
                 }
             } else {
                 return Option.empty(op.error());

@@ -133,6 +133,40 @@ public class CatTest {
     }
 
     @Test
+    public void filter_test() {
+        String originStr = "origin-str";
+        String backStr = "back";
+        Option<String> someStr = Option.of(originStr);
+        Option<String> noStr = Option.empty();
+
+        String result = someStr.filter((v) -> v.length() > originStr.length()).getOrElse(backStr);
+        Assert.assertEquals(backStr, result);
+
+        result = someStr.filter((v) -> v.length() == originStr.length()).getOrElse(backStr);
+        Assert.assertEquals(originStr, result);
+
+        result = noStr.filter((v) -> v.length() > 0).getOrElse(backStr);
+        Assert.assertEquals(backStr, result);
+    }
+
+    @Test
+    public void cat_filter_test() {
+        String originStr = "origin-str";
+        String backStr = "back";
+        Cat<String> someStr = Cat.of(originStr);
+        Cat<String> noStr = Cat.empty();
+
+        String result = someStr.filter((v) -> v.length() > originStr.length()).getOrElse(backStr);
+        Assert.assertEquals(backStr, result);
+
+        result = someStr.filter((v) -> v.length() == originStr.length()).getOrElse(backStr);
+        Assert.assertEquals(originStr, result);
+
+        result = noStr.filter((v) -> v.length() > 0).getOrElse(backStr);
+        Assert.assertEquals(backStr, result);
+    }
+
+    @Test
     public void exception() {
         String originStr = "origin-str";
         String defaultStr = "default-str";

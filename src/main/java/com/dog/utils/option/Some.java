@@ -1,6 +1,7 @@
 package com.dog.utils.option;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public final class Some<T> extends Option<T> {
     private final T t;
@@ -27,6 +28,19 @@ public final class Some<T> extends Option<T> {
     public <R> Option<R> flatMap(Function<? super T, ? extends Option<? extends R>> transformer) {
         try {
             return (Option<R>) transformer.apply(get());
+        } catch (Exception e) {
+            return Option.empty(e);
+        }
+    }
+
+    @Override
+    public Option<T> filter(Predicate<? super T> predicate) {
+        try {
+            if (predicate.test(get())) {
+                return this;
+            } else {
+                return Option.empty("filter failed");
+            }
         } catch (Exception e) {
             return Option.empty(e);
         }
