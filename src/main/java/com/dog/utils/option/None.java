@@ -42,7 +42,7 @@ public final class None<T> extends Option<T> {
 
     @Override
     public T get() {
-        throw new RuntimeException("none has no value");
+        throw new RuntimeException(err);
     }
 
     @Override
