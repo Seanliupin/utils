@@ -3,6 +3,7 @@ package com.dog.utils.option;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.NonBlocking;
+import reactor.core.scheduler.Scheduler;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -98,6 +99,14 @@ public class Cat<T> {
 
     public static <T> Mono<Option<T>> flatMapEmpty(Exception e) {
         return Mono.just(Option.empty(e));
+    }
+
+    public final Cat<T> publishOn(Scheduler scheduler) {
+        return new Cat<>(data.publishOn(scheduler));
+    }
+
+    public final Cat<T> subscribeOn(Scheduler scheduler) {
+        return new Cat<>(data.subscribeOn(scheduler));
     }
 
     public Cat<T> actOnSome(Consumer<T> consumer) {
