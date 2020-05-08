@@ -36,6 +36,14 @@ public abstract class Option<T> {
 
     public abstract T get();
 
+    public T getOrThrow(String msg) {
+        if (hasValue()) {
+            return get();
+        } else {
+            throw new OptionException(msg);
+        }
+    }
+
     public T getOrElse(T back) {
         if (hasValue()) {
             return get();

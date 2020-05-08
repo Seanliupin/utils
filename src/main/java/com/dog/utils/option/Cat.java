@@ -264,6 +264,14 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
+    /**
+     * Go right if there is some value, otherwise go left.
+     *
+     * @param right
+     * @param left
+     * @param <R>
+     * @return
+     */
     public <R> Cat<R> eitherFlatMap(Function<? super T, Cat<R>> right, Function<Exception, Cat<R>> left) {
         Mono<Option<R>> mo = data.flatMap((op) -> {
             if (op.hasValue()) {
