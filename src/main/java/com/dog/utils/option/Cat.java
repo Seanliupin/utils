@@ -5,6 +5,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.NonBlocking;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +48,13 @@ public class Cat<T> {
             return empty(new CatInitException("can not init cat by null value"));
         }
         return new Cat<>(t);
+    }
+
+    public static <T> Cat<T> of(Optional<T> t) {
+        if (Objects.isNull(t)) {
+            return empty();
+        }
+        return t.map(Cat::of).orElseGet(Cat::empty);
     }
 
     public static <T> Cat<T> of(Option<T> t) {
