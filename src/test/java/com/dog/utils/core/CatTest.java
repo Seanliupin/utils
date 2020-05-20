@@ -133,6 +133,45 @@ public class CatTest {
     }
 
     @Test
+    public void flow_if_test() {
+        final String originStr = "origin-str";
+        final String goodStr = "good";
+        Cat<String> someStr = Cat.of(originStr);
+        Cat<String> noStr = Cat.empty();
+
+        Option<String> opValue;
+        String flowedValue;
+        String notFlowedValue;
+
+        flowedValue = someStr.someFlatFlowIf(true, s -> Cat.of(goodStr)).get();
+        Assert.assertEquals(goodStr, flowedValue);
+
+        opValue = someStr.someFlatFlowIf(true, s -> Cat.empty("no")).getOption();
+        Assert.assertTrue(opValue.hasNoValue());
+
+        opValue = noStr.someFlatFlowIf(true, s -> Cat.of(goodStr)).getOption();
+        Assert.assertTrue(opValue.hasNoValue());
+
+        notFlowedValue = someStr.someFlatFlowIf(false, s -> Cat.of(goodStr)).get();
+        Assert.assertEquals(originStr, notFlowedValue);
+
+        opValue = noStr.someFlatFlowIf(false, s -> Cat.of(goodStr)).getOption();
+        Assert.assertTrue(opValue.hasNoValue());
+
+        flowedValue = someStr.someFlowIf(true, s -> Option.of(goodStr)).get();
+        Assert.assertEquals(goodStr, flowedValue);
+
+        opValue = noStr.someFlowIf(true, s -> Option.of(goodStr)).getOption();
+        Assert.assertTrue(opValue.hasNoValue());
+
+        notFlowedValue = someStr.someFlowIf(false, s -> Option.of(goodStr)).get();
+        Assert.assertEquals(originStr, notFlowedValue);
+
+        opValue = noStr.someFlowIf(false, s -> Option.of(goodStr)).getOption();
+        Assert.assertTrue(opValue.hasNoValue());
+    }
+
+    @Test
     public void filter_test() {
         String originStr = "origin-str";
         String backStr = "back";
@@ -201,8 +240,6 @@ public class CatTest {
             return Cat.of(mapInt);
         }).getOrElse(defaultInt);
         Assert.assertEquals(defaultInt, intValue);
-
-
     }
 
     private void fakeError() {

@@ -206,6 +206,38 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
+
+    /**
+     * 如果 needFlow为true，则对内容进行同态处理。
+     *
+     * @param needFlow
+     * @param transformer
+     * @return
+     */
+    public Cat<T> someFlowIf(boolean needFlow, Function<? super T, ? extends Option<? extends T>> transformer) {
+        Mono<Option<T>> mo = data.map((op) -> {
+            if (op.hasValue()) {
+                try {
+                    if (needFlow) {
+                        return op.flatMap(transformer);
+                    } else {
+                        return op;
+                    }
+                } catch (Exception e) {
+                    return Option.empty(e);
+                }
+            } else {
+                return Option.empty(op.error());
+            }
+        });
+
+        return new Cat<>(mo);
+    }
+
+    public Cat<T> someFlowIfNot(boolean needFlow, Function<? super T, ? extends Option<? extends T>> transformer) {
+        return someFlowIf(!needFlow, transformer);
+    }
+
     public Cat<T> filter(Predicate<? super T> predicate) {
         Mono<Option<T>> mo = data.map((op) -> {
             if (op.hasValue()) {
@@ -258,6 +290,13 @@ public class Cat<T> {
         return new Cat<>(mo);
     }
 
+    /**
+     * 如果有，则映射。
+     *
+     * @param transformer
+     * @param <R>
+     * @return
+     */
     public <R> Cat<R> someFlatMap(Function<? super T, Cat<R>> transformer) {
         Mono<Option<R>> mo = data.flatMap((op) -> {
             if (op.hasValue()) {
@@ -271,6 +310,36 @@ public class Cat<T> {
             }
         });
         return new Cat<>(mo);
+    }
+
+    /**
+     * 如果 needFlow 为 true，则通过 transformer 对数据进行同态处理。
+     *
+     * @param needFlow
+     * @param transformer
+     * @return
+     */
+    public Cat<T> someFlatFlowIf(boolean needFlow, Function<? super T, Cat<T>> transformer) {
+        Mono<Option<T>> mo = data.flatMap((op) -> {
+            if (op.hasValue()) {
+                try {
+                    if (needFlow) {
+                        return transformer.apply(op.get()).getData();
+                    } else {
+                        return Mono.just(op);
+                    }
+                } catch (Exception e) {
+                    return Mono.just(Option.empty(e));
+                }
+            } else {
+                return Mono.just(Option.empty(op.error()));
+            }
+        });
+        return new Cat<>(mo);
+    }
+
+    public Cat<T> someFlatFlowIfNot(boolean needFlow, Function<? super T, Cat<T>> transformer) {
+        return someFlatFlowIf(!needFlow, transformer);
     }
 
     /**
