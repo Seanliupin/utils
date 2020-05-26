@@ -1,46 +1,31 @@
 package com.dog.utils.option;
 
-
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.NonBlocking;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class Cat<T> {
-
-    private static ExecutorService service = Executors.newFixedThreadPool(3);
-    private final Mono<Option<T>> data;
+    private final CompletableFuture<Option<T>> future;
 
     private Cat(T t) {
-        data = Mono.just(Option.of(t));
+        future = CompletableFuture.completedFuture(Option.of(t));
     }
 
-    private Cat(Mono<Option<T>> d) {
-        data = d;
+    private Cat(CompletableFuture<Option<T>> future) {
+        this.future = future;
     }
 
     private Cat() {
-        data = Mono.just(Option.empty());
+        future = CompletableFuture.completedFuture(Option.empty());
     }
 
     private Cat(Option<T> t) {
-        data = Mono.just(t);
-    }
-
-    public static void setService(ExecutorService newService) {
-        if (newService == null) {
-            throw new NullPointerException("server should not be null");
-        }
-        service = newService;
+        future = CompletableFuture.completedFuture(t);
     }
 
     public static <T> Cat<T> of(T t) {
@@ -90,73 +75,53 @@ public class Cat<T> {
         return new None<>(e);
     }
 
-    public static <T> Mono<Option<T>> flatMapOf(T t) {
-        return Mono.just(Option.of(t));
-    }
-
-    public static <T> Mono<Option<T>> flatMapOf(Option<T> t) {
-        return Mono.just(t);
-    }
-
-    public static <T> Mono<Option<T>> flatMapEmpty() {
-        return Mono.just(Option.empty());
-    }
-
-    public static <T> Mono<Option<T>> flatMapEmpty(String err) {
-        return Mono.just(Option.empty(err));
-    }
-
-    public static <T> Mono<Option<T>> flatMapEmpty(Exception e) {
-        return Mono.just(Option.empty(e));
-    }
-
-    public final Cat<T> publishOn(Scheduler scheduler) {
-        return new Cat<>(data.publishOn(scheduler));
-    }
-
-    public final Cat<T> subscribeOn(Scheduler scheduler) {
-        return new Cat<>(data.subscribeOn(scheduler));
+    public static <T> Cat<T> of(CompletableFuture<Option<T>> future) {
+        return new Cat<>(future);
     }
 
     public Cat<T> actOnSome(Consumer<T> consumer) {
-        Mono<Option<T>> mid = data.map((op) -> {
-            if (op.hasValue()) {
+        CompletableFuture<Option<T>> next = future.thenApply(option -> {
+            if (option.hasValue()) {
                 try {
-                    consumer.accept(op.get());
-                } catch (Exception e) {
+                    consumer.accept(option.get());
+                } catch (Exception ignored) {
                 }
             }
-            return op;
+            return option;
         });
 
-        return new Cat<>(mid);
+        return Cat.of(next);
+    }
+
+    private CompletableFuture<Option<T>> getFuture() {
+        return future;
     }
 
     public Cat<T> act(Consumer<Option<T>> consumer) {
-        Mono<Option<T>> mid = data.map((op) -> {
+        CompletableFuture<Option<T>> next = future.thenApply(option -> {
             try {
-                consumer.accept(op);
-            } catch (Exception e) {
+                consumer.accept(option);
+            } catch (Exception ignored) {
             }
-            return op;
+            return option;
         });
 
-        return new Cat<>(mid);
+        return Cat.of(next);
     }
 
 
     public Cat<T> actOnNone(Consumer<Exception> consumer) {
-        Mono<Option<T>> mid = data.map((op) -> {
-            if (op.hasNoValue()) {
+        CompletableFuture<Option<T>> next = future.thenApply(option -> {
+            if (option.hasNoValue()) {
                 try {
-                    consumer.accept(op.error());
-                } catch (Exception e) {
+                    consumer.accept(option.error());
+                } catch (Exception ignored) {
                 }
             }
-            return op;
+            return option;
         });
 
-        return new Cat<>(mid);
+        return Cat.of(next);
     }
 
     /**
@@ -168,19 +133,17 @@ public class Cat<T> {
      * @return
      */
     public Cat<T> noneMap(Function<Exception, Option<T>> transformer) {
-        Mono<Option<T>> mo = data.map((op) -> {
-            if (op.hasNoValue()) {
+        CompletableFuture<Option<T>> next = future.thenApply(option -> {
+            if (option.hasNoValue()) {
                 try {
-                    return transformer.apply(op.error());
+                    return transformer.apply(option.error());
                 } catch (Exception e) {
                     return Option.empty(e);
                 }
-            } else {
-                return op;
             }
+            return option;
         });
-
-        return new Cat<>(mo);
+        return Cat.of(next);
     }
 
     /**
@@ -190,20 +153,18 @@ public class Cat<T> {
      * @param <R>
      * @return
      */
-    public <R> Cat<R> someMap(Function<? super T, ? extends Option<? extends R>> transformer) {
-        Mono<Option<R>> mo = data.map((op) -> {
-            if (op.hasValue()) {
+    public <R> Cat<R> someMap(Function<T, Option<R>> transformer) {
+        CompletableFuture<Option<R>> next = future.thenApply(option -> {
+            if (option.hasValue()) {
                 try {
-                    return op.flatMap(transformer);
+                    return transformer.apply(option.get());
                 } catch (Exception e) {
                     return Option.empty(e);
                 }
-            } else {
-                return Option.empty(op.error());
             }
+            return Option.empty("");
         });
-
-        return new Cat<>(mo);
+        return Cat.of(next);
     }
 
 
@@ -214,80 +175,73 @@ public class Cat<T> {
      * @param transformer
      * @return
      */
-    public Cat<T> someFlowIf(boolean needFlow, Function<? super T, ? extends Option<? extends T>> transformer) {
-        Mono<Option<T>> mo = data.map((op) -> {
-            if (op.hasValue()) {
+    public Cat<T> someFlowIf(boolean needFlow, Function<T, Option<T>> transformer) {
+        CompletableFuture<Option<T>> next = future.thenApply(option -> {
+            try {
+                if (needFlow) {
+                    return option.flatMap(transformer);
+                }
+                return option;
+            } catch (Exception e) {
+                return Option.empty(e);
+            }
+        });
+        return Cat.of(next);
+    }
+
+    public Cat<T> someFlowIfNot(boolean needFlow, Function<T, Option<T>> transformer) {
+        return someFlowIf(!needFlow, transformer);
+    }
+
+    public Cat<T> filter(Predicate<T> predicate) {
+        CompletableFuture<Option<T>> next = future.thenApply(option -> {
+            if (option.hasValue()) {
                 try {
-                    if (needFlow) {
-                        return op.flatMap(transformer);
+                    if (predicate.test(option.get())) {
+                        return option;
                     } else {
-                        return op;
+                        return Option.empty("filter failed");
                     }
                 } catch (Exception e) {
                     return Option.empty(e);
                 }
+
             } else {
-                return Option.empty(op.error());
+                return option;
             }
         });
-
-        return new Cat<>(mo);
+        return Cat.of(next);
     }
 
-    public Cat<T> someFlowIfNot(boolean needFlow, Function<? super T, ? extends Option<? extends T>> transformer) {
-        return someFlowIf(!needFlow, transformer);
-    }
-
-    public Cat<T> filter(Predicate<? super T> predicate) {
-        Mono<Option<T>> mo = data.map((op) -> {
-            if (op.hasValue()) {
-                if (predicate.test(op.get())) {
-                    return op;
-                } else {
-                    return Option.empty("filter failed");
-                }
-            } else {
-                return Option.empty(op.error());
-            }
-        });
-
-        return new Cat<>(mo);
-    }
-
-    public <R> Cat<R> eitherMap(Function<? super T, ? extends Option<? extends R>> right,
+    public <R> Cat<R> eitherMap(Function<T, Option<R>> right,
                                 Function<Exception, Option<R>> left) {
-        Mono<Option<R>> mo = data.map((op) -> {
-            if (op.hasValue()) {
-                try {
-                    return op.flatMap(right);
-                } catch (Exception e) {
-                    return Option.empty(e);
+        CompletableFuture<Option<R>> next = future.thenApply(option -> {
+            try {
+                if (option.hasValue()) {
+                    return option.flatMap(right);
+                } else {
+                    return left.apply(option.error());
                 }
-            } else {
-                try {
-                    return left.apply(op.error());
-                } catch (Exception e) {
-                    return Option.empty(e);
-                }
+            } catch (Exception e) {
+                return Option.empty(e);
             }
         });
-
-        return new Cat<>(mo);
+        return Cat.of(next);
     }
 
     public Cat<T> noneFlatMap(Function<Exception, Cat<T>> transformer) {
-        Mono<Option<T>> mo = data.flatMap((op) -> {
-            if (op.hasNoValue()) {
-                try {
-                    return transformer.apply(op.error()).getData();
-                } catch (Exception e) {
-                    return Mono.just(Option.empty(e));
+        CompletableFuture<Option<T>> next = future.thenCompose(option -> {
+            try {
+                if (option.hasNoValue()) {
+                    return transformer.apply(option.error()).getFuture();
+                } else {
+                    return CompletableFuture.completedFuture(option);
                 }
-            } else {
-                return Mono.just(op);
+            } catch (Exception e) {
+                return CompletableFuture.completedFuture(Option.empty(e));
             }
         });
-        return new Cat<>(mo);
+        return Cat.of(next);
     }
 
     /**
@@ -298,18 +252,15 @@ public class Cat<T> {
      * @return
      */
     public <R> Cat<R> someFlatMap(Function<? super T, Cat<R>> transformer) {
-        Mono<Option<R>> mo = data.flatMap((op) -> {
-            if (op.hasValue()) {
-                try {
-                    return transformer.apply(op.get()).getData();
-                } catch (Exception e) {
-                    return Mono.just(Option.empty(e));
-                }
-            } else {
-                return Mono.just(Option.empty(op.error()));
+        CompletableFuture<Option<R>> nextStep = future.thenCompose(option -> {
+            if (option.hasValue()) {
+                Cat<R> re = transformer.apply(option.get());
+                return re.getFuture();
             }
+            return CompletableFuture.completedFuture(Option.empty(""));
         });
-        return new Cat<>(mo);
+
+        return Cat.of(nextStep);
     }
 
     /**
@@ -319,26 +270,21 @@ public class Cat<T> {
      * @param transformer
      * @return
      */
-    public Cat<T> someFlatFlowIf(boolean needFlow, Function<? super T, Cat<T>> transformer) {
-        Mono<Option<T>> mo = data.flatMap((op) -> {
-            if (op.hasValue()) {
-                try {
-                    if (needFlow) {
-                        return transformer.apply(op.get()).getData();
-                    } else {
-                        return Mono.just(op);
-                    }
-                } catch (Exception e) {
-                    return Mono.just(Option.empty(e));
+    public Cat<T> someFlatFlowIf(boolean needFlow, Function<T, Cat<T>> transformer) {
+        CompletableFuture<Option<T>> next = future.thenCompose(option -> {
+            try {
+                if (needFlow) {
+                    return transformer.apply(option.get()).getFuture();
                 }
-            } else {
-                return Mono.just(Option.empty(op.error()));
+                return CompletableFuture.completedFuture(option);
+            } catch (Exception e) {
+                return CompletableFuture.completedFuture(Option.empty(e));
             }
         });
-        return new Cat<>(mo);
+        return Cat.of(next);
     }
 
-    public Cat<T> someFlatFlowIfNot(boolean needFlow, Function<? super T, Cat<T>> transformer) {
+    public Cat<T> someFlatFlowIfNot(boolean needFlow, Function<T, Cat<T>> transformer) {
         return someFlatFlowIf(!needFlow, transformer);
     }
 
@@ -350,84 +296,66 @@ public class Cat<T> {
      * @param <R>
      * @return
      */
-    public <R> Cat<R> eitherFlatMap(Function<? super T, Cat<R>> right, Function<Exception, Cat<R>> left) {
-        Mono<Option<R>> mo = data.flatMap((op) -> {
-            if (op.hasValue()) {
-                try {
-                    return right.apply(op.get()).getData();
-                } catch (Exception e) {
-                    return Mono.just(Option.empty(e));
+    public <R> Cat<R> eitherFlatMap(Function<T, Cat<R>> right, Function<Exception, Cat<R>> left) {
+        CompletableFuture<Option<R>> next = future.thenCompose(option -> {
+            try {
+                if (option.hasValue()) {
+                    return right.apply(option.get()).getFuture();
+                } else {
+                    return left.apply(option.error()).getFuture();
                 }
-            } else {
-                try {
-                    return left.apply(op.error()).getData();
-                } catch (Exception e) {
-                    return Mono.just(Option.empty(e));
-                }
+            } catch (Exception e) {
+                return CompletableFuture.completedFuture(Option.empty(e));
             }
         });
-        return new Cat<>(mo);
+        return Cat.of(next);
     }
 
     public Mono<Option<T>> getData() {
-        return data;
-    }
-
-    public Mono<T> getMono() {
-        return data.map((a) -> {
-            if (a.hasValue()) {
-                return a.get();
-            } else {
-                if (a.error() instanceof RuntimeException) {
-                    throw (RuntimeException) a.error();
-                } else {
-                    throw new OptionException(a.error());
-                }
+        return Mono.just("").map(it -> {
+            try {
+                return future.get();
+            } catch (Exception e) {
+                return Option.empty(e);
             }
         });
     }
 
+    public Mono<T> getMono() {
+        try {
+            Option<T> value = future.get();
+            return Mono.just(value.get());
+        } catch (Exception e) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else {
+                throw new OptionException(e.getMessage());
+            }
+        }
+    }
+
     public Option<T> getOption() {
-        return data.block();
+        try {
+            return future.get();
+        } catch (Exception e) {
+            return Option.empty(e);
+        }
     }
 
     public T get() {
-        Option<T> option;
-        try {
-            if (Thread.currentThread() instanceof NonBlocking) {
-                Future<Option<T>> future = service.submit((Callable<Option<T>>) data::block);
-                option = future.get();
-            } else {
-                option = data.block();
-            }
-            assert option != null;
-            if (option.hasValue()) {
-                return option.get();
-            }
-        } catch (Exception e) {
-            option = None.empty(new OptionException(e));
-        }
-
-        if (option.error() instanceof RuntimeException) {
-            throw (RuntimeException) option.error();
-        }
-
-        throw new RuntimeException(option.error());
+        return getOption().get();
     }
 
     public T get(RuntimeException e) {
-        Option<T> option = data.block();
-        assert option != null;
+        Option<T> option = getOption();
         if (option.hasValue()) {
             return option.get();
         }
-
         throw e;
     }
 
     public T getOrElse(T back) {
-        Option<T> option = data.block();
-        assert option != null;
+        Option<T> option = getOption();
         if (option.hasValue()) {
             return option.get();
         }
