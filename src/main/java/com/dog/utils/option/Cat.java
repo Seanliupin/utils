@@ -162,7 +162,7 @@ public class Cat<T> {
                     return Option.empty(e);
                 }
             }
-            return Option.empty("");
+            return Option.empty(option.error());
         });
         return Cat.of(next);
     }
@@ -257,7 +257,7 @@ public class Cat<T> {
                 Cat<R> re = transformer.apply(option.get());
                 return re.getFuture();
             }
-            return CompletableFuture.completedFuture(Option.empty(""));
+            return CompletableFuture.completedFuture(Option.empty(option.error()));
         });
 
         return Cat.of(nextStep);
