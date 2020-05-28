@@ -1,4 +1,5 @@
 # 使用方法
+
 ## 简要定义返回结果
 
 ```java
@@ -23,7 +24,21 @@ public class SimpleResult {
 }
 ```
 
-## 在Service中定义业务逻辑。
+## 定义 Repository
+
+```java
+@Repository
+public interface NoteRepository extends BaseRepo<Note, Long> {
+    @Query("select t from note t where t.user.id = :id and t.removed = false ORDER BY t.createAt DESC")
+    List<Note> findByUser(@Param("id") Long userID, Pageable pageable);
+
+    @Query("select t from note t where t.user.id = :id and t.id = :user_id")
+    Note findByUserAndID(@Param("id") Long id, @Param("user_id") Long userID);
+}
+```
+
+## 在 Service 中定义业务逻辑。
+
 ```java
 @Service
 public class NoteService extends BaseService<Note> {
@@ -69,8 +84,8 @@ public class NoteService extends BaseService<Note> {
 }
 ```
 
+## 在 Controller 中调用 Service
 
-## 在Controller中调用Service
 ```java
 @RestController
 @RequestMapping("note")
