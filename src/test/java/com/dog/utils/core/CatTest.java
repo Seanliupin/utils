@@ -186,6 +186,30 @@ public class CatTest {
 
         result = noStr.filter((v) -> v.length() > 0).getOrElse(backStr);
         Assert.assertEquals(backStr, result);
+
+        result = someStr.filter((v) -> v.length() > originStr.length()).getOrElseLazy(() -> backStr);
+        Assert.assertEquals(backStr, result);
+
+        result = someStr.filter((v) -> v.length() == originStr.length()).getOrElseLazy(() -> backStr);
+        Assert.assertEquals(originStr, result);
+
+        result = noStr.filter((v) -> v.length() > 0).getOrElseLazy(() -> backStr);
+        Assert.assertEquals(backStr, result);
+
+        // 验证lazy模块没有副作用
+        AtomicInteger hasEffect = new AtomicInteger(0);
+        result = noStr.filter((v) -> v.length() > 0).getOrElseLazy(() -> {
+            hasEffect.getAndIncrement();
+            return backStr;
+        });
+        Assert.assertEquals(1, hasEffect.get());
+
+        AtomicInteger hasNoEffect = new AtomicInteger(0);
+        result = someStr.filter((v) -> v.length() == originStr.length()).getOrElseLazy(() -> {
+            hasNoEffect.getAndIncrement();
+            return backStr;
+        });
+        Assert.assertEquals(0, hasNoEffect.get());
     }
 
     @Test
@@ -202,6 +226,43 @@ public class CatTest {
         Assert.assertEquals(originStr, result);
 
         result = noStr.filter((v) -> v.length() > 0).getOrElse(backStr);
+        Assert.assertEquals(backStr, result);
+    }
+
+    @Test
+    public void cat_check_test() {
+        String originStr = "origin-str";
+        String backStr = "back";
+        Cat<String> someStr = Cat.of(originStr);
+        Cat<String> noStr = Cat.empty();
+
+        String result;
+        result = someStr.someCheck(v -> {
+            if (v.length() > 2) {
+                throw new RuntimeException("string len is longer than 2");
+            }
+        }).getOrElse(backStr);
+        Assert.assertEquals(backStr, result);
+
+        result = someStr.someCheck(v -> {
+            if (v.length() > 20) {
+                throw new RuntimeException("string len is longer than 20");
+            }
+        }).getOrElse(backStr);
+        Assert.assertEquals(originStr, result);
+
+        result = noStr.someCheck(v -> {
+            if (v.length() > 2) {
+                throw new RuntimeException("string len is longer than 2");
+            }
+        }).getOrElse(backStr);
+        Assert.assertEquals(backStr, result);
+
+        result = noStr.someCheck(v -> {
+            if (v.length() > 20) {
+                throw new RuntimeException("string len is longer than 20");
+            }
+        }).getOrElse(backStr);
         Assert.assertEquals(backStr, result);
     }
 

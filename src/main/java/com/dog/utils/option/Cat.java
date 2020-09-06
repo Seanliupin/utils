@@ -167,6 +167,27 @@ public class Cat<T> {
         return Cat.of(next);
     }
 
+    /**
+     * 在执行途中，可以做一些检查，如果不符合条件，则抛出异常。
+     *
+     * @param consumer
+     * @return
+     */
+    public Cat<T> someCheck(Consumer<T> consumer) {
+        CompletableFuture<Option<T>> next = future.thenApply(option -> {
+            if (option.hasValue()) {
+                try {
+                    consumer.accept(option.get());
+                    return option;
+                } catch (Exception e) {
+                    return Option.empty(e);
+                }
+            }
+            return Option.empty(option.error());
+        });
+        return Cat.of(next);
+    }
+
 
     /**
      * 如果 needFlow为true，则对内容进行同态处理。

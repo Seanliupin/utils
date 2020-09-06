@@ -32,7 +32,7 @@ public final class None<T> extends Option<T> {
 
     @Override
     public Option<T> filter(Predicate<? super T> predicate) {
-        return Option.empty(err);
+        return this;
     }
 
     @Override

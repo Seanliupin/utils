@@ -3,6 +3,7 @@ package com.dog.utils.option;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public abstract class Option<T> {
 
@@ -32,6 +33,12 @@ public abstract class Option<T> {
         }
     }
 
+    public void consume(Consumer<T> consumer) {
+        if (hasValue()) {
+            consumer.accept(get());
+        }
+    }
+
     public abstract <R> Option<R> flatMap(Function<? super T, ? extends Option<? extends R>> transformer);
 
     public abstract T get();
@@ -49,6 +56,14 @@ public abstract class Option<T> {
             return get();
         } else {
             return back;
+        }
+    }
+
+    public T getOrElseLazy(Supplier<T> back) {
+        if (hasValue()) {
+            return get();
+        } else {
+            return back.get();
         }
     }
 
